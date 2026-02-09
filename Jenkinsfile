@@ -1,44 +1,29 @@
 pipeline {
-    agent any
-
-    environment {
-        PROJECT = "demo"
-        APP_NAME = "springboot-demo"
-        REGISTRY = "image-registry.openshift-image-registry.svc:5000"
-        IMAGE = "${REGISTRY}/${PROJECT}/${APP_NAME}:latest"
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: gradle
+    image: registry.redhat.io/ubi8/openjdk-17
+    command:
+    - cat
+    tty: true
+"""
     }
+  }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/xuabcuong/demo_cicd_OCP.git'
-            }
+  stages {
+    stage('Build') {
+      steps {
+        container('gradle') {
+          sh 'java -version'
+          sh 'chmod +x gradlew'
+          sh './gradlew clean build -x test'
         }
-
-         stage('Build JAR') {
-                    steps {
-                        sh 'chmod +x gradlew'
-                        sh './gradlew clean build -x test'
-                    }
-                }
-
-        stage('Build & Push Image') {
-            steps {
-                sh """
-                oc project ${PROJECT}
-                docker build -t ${IMAGE} .
-                docker push ${IMAGE}
-                """
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh """
-                oc apply -f k8s/deployment.yaml
-                oc apply -f k8s/service.yaml
-                """
-            }
-        }
+      }
     }
+  }
 }
