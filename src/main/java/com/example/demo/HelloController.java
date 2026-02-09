@@ -9,6 +9,6 @@ public class HelloController {
     @GetMapping("/hello")
     public String hello() {
         System.out.println("📌 Call /hello API");
-        return "Hello OpenShift + Jenkins 👋";
+        return "Hello OpenShift + Jenkins 👋 123";
     }
 }
