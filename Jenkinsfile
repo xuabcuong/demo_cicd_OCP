@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/springboot-openshift-demo.git'
+                git branch: 'main', url: 'https://github.com/xuabcuong/demo_cicd_OCP.git'
             }
         }
 
